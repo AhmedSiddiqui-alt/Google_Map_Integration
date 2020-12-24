@@ -6,7 +6,6 @@ class User {
   final String firstName;
   final String lastName;
   final String address;
-  final String markerInfoWindow;
   final double longitude;
   final double latitude;
   User(
@@ -15,7 +14,6 @@ class User {
       @required this.firstName,
       @required this.lastName,
       @required this.address,
-      @required this.markerInfoWindow,
       @required this.longitude,
       @required this.latitude});
 }

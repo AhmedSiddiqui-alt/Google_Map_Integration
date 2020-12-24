@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import '../models/user.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -12,7 +14,7 @@ class ManageUserScreen extends StatefulWidget {
 class _ManageUserScreenState extends State<ManageUserScreen> {
   GoogleMapController _controller;
 // _controller.setMapStyle('assets/dark.json');
-
+  String addressLoc;
   double lng;
   double lt;
   double longitude;
@@ -23,15 +25,15 @@ class _ManageUserScreenState extends State<ManageUserScreen> {
       firstName: null,
       lastName: null,
       address: null,
-      markerInfoWindow: null,
       longitude: null,
       latitude: null);
   final Formkey = GlobalKey<FormState>();
   List<Marker> marker = [];
   void addMarker(var coordinate) {
     setState(() {
-      longitude = 0;
-      latitude = 0;
+      // addressLoc = null;
+      // longitude = 0;
+      // latitude = 0;
       marker.add(Marker(position: coordinate, markerId: MarkerId('M1')));
     });
   }
@@ -49,7 +51,7 @@ class _ManageUserScreenState extends State<ManageUserScreen> {
       body: SingleChildScrollView(
           child: Container(
         margin: EdgeInsets.all(20),
-        height: 850,
+        height: addressLoc==null?900:1050,
         decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),
@@ -72,7 +74,6 @@ class _ManageUserScreenState extends State<ManageUserScreen> {
                               firstName: val,
                               lastName: manageData.lastName,
                               address: manageData.address,
-                              markerInfoWindow: manageData.markerInfoWindow,
                               longitude: manageData.longitude,
                               latitude: manageData.latitude);
                         },
@@ -92,7 +93,6 @@ class _ManageUserScreenState extends State<ManageUserScreen> {
                               firstName: manageData.firstName,
                               lastName: val,
                               address: manageData.address,
-                              markerInfoWindow: manageData.markerInfoWindow,
                               longitude: manageData.longitude,
                               latitude: manageData.latitude);
                         },
@@ -209,8 +209,10 @@ class _ManageUserScreenState extends State<ManageUserScreen> {
                                   setState(() {
                                     marker.removeWhere((element) =>
                                         'M1' == element.markerId.value);
-                                    // longitude = 0;
-                                    // latitude = 0;
+
+                                    longitude = 0;
+                                    latitude = 0;
+                                    addressLoc = null;
                                   });
                                 }))),
                     Positioned(
@@ -235,22 +237,28 @@ class _ManageUserScreenState extends State<ManageUserScreen> {
                                             coordinates);
                                     print('Longitude' + longitude.toString());
                                     print('Latitude' + latitude.toString());
+                                    setState(() {
+                                      addressLoc = address.first.addressLine;
+                                    });
                                     showDialog(
                                         context: context,
                                         builder: (ctx) {
                                           return AlertDialog(
-                                            content: Text('${address.first.locality}' +
-                                                '\n' +
-                                                '${address.first.adminArea}'
-                                                    '${address.first.subLocality}' +
-                                                '\n' +
-                                                '${address.first.subAdminArea}'
-                                                    '${address.first.addressLine}' +
-                                                '\n' +
-                                                '${address.first.featureName}'
-                                                    '${address.first.thoroughfare}' +
-                                                '\n' +
-                                                '${address.first.subThoroughfare}'),
+                                            content: Text(
+                                                // '${address.first.locality} End' +
+                                                // '\n' +
+                                                // '${address.first.adminArea} End'
+                                                //     '${address.first.subLocality} End' +
+                                                // '\n' +
+                                                // '${address.first.subAdminArea} End'
+                                                '${address.first.addressLine} End'
+                                                //     +
+                                                // '\n' +
+                                                // '${address.first.featureName} End'
+                                                //     '${address.first.thoroughfare} End' +
+                                                // '\n' +
+                                                // '${address.first.subThoroughfare} End'
+                                                ),
                                           );
                                         });
                                     // var first = address.first;
@@ -293,7 +301,47 @@ class _ManageUserScreenState extends State<ManageUserScreen> {
                                   zoom: 17)));
                         });
                       }),
-                )
+                ),
+                Card(
+                    elevation: 6,
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                              margin: EdgeInsets.all(10),
+                              child: Text('Address',
+                                  style: TextStyle(
+                                    color: Colors.pink[500],
+                                    fontSize: 18,
+                                  ))),
+                        ),
+                        Expanded(
+                          child: Container(
+                              color: Colors.white,
+                              margin: EdgeInsets.all(10),
+                              child: addressLoc == null
+                                  ? Text('Empty',
+                                      style: TextStyle(
+                                        color: Colors.pink[500],
+                                        fontSize: 15,
+                                      ))
+                                  : TextFormField(
+                                      maxLines: 8,
+                                      initialValue: addressLoc.toString(),
+                                      onSaved: (val) {
+                                        manageData = User(
+                                            id: manageData.id,
+                                            markerId: manageData.markerId,
+                                            firstName: manageData.firstName,
+                                            lastName: manageData.lastName,
+                                            address: val,
+                                            longitude: manageData.longitude,
+                                            latitude: manageData.latitude);
+                                      },
+                                    )),
+                        )
+                      ],
+                    ))
               ],
             )),
       )),
